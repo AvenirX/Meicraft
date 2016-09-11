@@ -1,66 +1,94 @@
-import random
+"""
+Skills
+"""
+from Effect import *
 
 
-class Projectile:
-    typeDict = {
-        0: ['buff'],
-        1: ['damage'],
-        2: ['damage', 'buff']
-    }
+class Skill:
+    def __init__(self, caster, phase_type, mp_cost=0, n=-1, alias='', key=''):
+        self.caster = caster
+        self.mp_cost = mp_cost
+        self.phase_type = phase_type
+        self.n = n
+        self.alias = alias
+        self.key = key
 
-    def __init__(self, type_id):
-        self.type_ = self.typeDict[type_id]
+        self.target = ''
 
-        if 'damage' in self.type_:
-            self.damage = {
-                'victim': None,
-                'amount': 0
-            }
-            return
+    def is_available(self):
+        return self.caster.MP - self.mp_cost >= 0 and self.n
 
-        if 'buff' in self.type_:
-            self.buff = {
-                'victim': None,
-                'buffId': '',
-                'remain': 0
-            }
-            return
-
-    def tick(self):
-        if 'damage' in self.type_:
-            self.damage['victim'].decrease_hp(self.damage['amount'])
-            print('[{v}] get [{dmg}] damage'.format(
-                v=self.damage['victim'].name,
-                dmg=self.damage['amount']))
+    def record_move(self):
+        self.caster.last_move = self
 
 
-def billing(projectile):
-    # Enter
-    print('Enter billing', end=' ')
-    projectile.tick()
+class Skill_prep(Skill):
+    def __init__(self, caster, phase_type='P',
+                 mp_cost=-1, alias="蓄", key='P'):
+
+        super(Skill_prep, self)\
+            .__init__(caster=caster, phase_type=phase_type, mp_cost=mp_cost, alias=alias, key=key)
+
+    def cast(self, *args):
+        self.record_move()
+        self.caster.set_phase(self.phase_type)
+        potion = Potion(skill=self, delta_mp=self.mp_cost*(-1))
+        potion.deliver()
+
+        return
+
+    def __repr__(self):
+        return '{alias}'.format(alias=self.alias)
 
 
-def skill_punch(caster, target, type_=1, *args, **kwargs):
-    print('[{c}] uses [{s}]'.format(c=caster.name, s='Punch'))
+class Skill_attack(Skill):
+    def __init__(self, caster, phase_type='A',
+                 mp_cost=1, damage=1, alias="戳", key='A'):
 
-    projectile = Projectile(type_)
-    projectile.damage['victim'] = target
-    projectile.damage['amount'] = caster.STR * 2 + random.randint(1, caster.dice)
+        super(Skill_attack, self)\
+            .__init__(caster=caster, mp_cost=mp_cost, phase_type=phase_type, alias=alias, key=key)
+        self.damage = damage
 
-    return projectile
+    def cast(self, target):
+        self.target = target
+        self.record_move()
+        self.caster.set_phase(self.phase_type)
+
+        potion = Potion(skill=self, delta_mp=self.mp_cost*(-1))
+        arrow = Arrow(skill=self, victim=target, delta_hp=self.damage * (-1))
+
+        potion.deliver()
+        arrow.deliver()
+
+        return
+
+    def __repr__(self):
+        return '{alias}->{target}'.format(alias=self.alias, target=self.target)
 
 
-def skill_heal(caster, target, type_=1, *args, **kwargs):
-    print('[{c}] uses [{s}]'.format(c=caster.name, s='Heal'))
+class Skill_defend(Skill):
+    def __init__(self, caster, phase_type='D',
+                 n=2, alias="挡", key='D'):
+        super(Skill_defend, self)\
+            .__init__(caster=caster, phase_type=phase_type, n=n, alias=alias, key=key)
 
-    projectile = Projectile(type_)
-    projectile.damage['victim'] = caster
-    projectile.damage['amount'] = -40
+    def cast(self, *args):
+        self.record_move()
+        self.n -= 1
+        self.caster.set_phase(self.phase_type)
 
-    return projectile
+        return
+
+    def __repr__(self):
+        return '{alias}'.format(alias=self.alias, target=self.target)
 
 
-DATA_SKILL = {
-    'punch': skill_punch,
-    'heal': skill_heal
-}
+# Customized skills
+class Skill_attack2(Skill_attack):
+    def __init__(self, caster,
+                 mp_cost=2, damage=2, alias='大力戳', key='A2'):
+        super(Skill_attack2, self)\
+            .__init__(caster=caster, mp_cost=mp_cost, damage=damage, alias=alias, key=key)
+
+    def __repr__(self):
+        return '{alias}->{target} !!'.format(alias=self.alias, target=self.target)

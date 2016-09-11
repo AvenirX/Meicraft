@@ -1,4 +1,4 @@
-from dev import *
+import newSkill
 
 
 class Hero:
@@ -9,146 +9,97 @@ class Hero:
         self.level = 1
         self.EXP = 0
 
-        self.__HP = 100
-        self.__STR = 10
-        self.__AGI = 5
-        self.__INT = 5
-        self.__STA = 5
+        self.__HP = 5
+        # self.__STR = 2
+        # self.__AGI = 1
+        # self.__INT = 1
+        self.__STA = 1
 
         self.HP = 0
-        self.STR = 0
-        self.AGI = 0
-        self.INT = 0
+        # self.STR = 0
+        # self.AGI = 0
+        # self.INT = 0
         self.STA = 0
 
-        self.SKB = []
+        self.SKILLBOOK = ['attack', 'prep', 'defend']
 
-        self.equipment = []
-        self.bag = {}
-
-        self.update_attr()
-
-        print('Boss [{name}({type_})] initialized'.format(
-            name=self.name,
-            type_=self.type_))
-
-    def update_attr(self):
-        self.STR = self.__STR
-        self.AGI = self.__AGI
-        self.INT = self.__INT
-        self.STA = self.__STA
-
-        self.HP = self.__HP + self.STA * 1
-
-    def increase_hp(self, amount):
-        self.HP += amount
-
-    def decrease_hp(self, amount):
-        self.HP -= amount
-
-    def add_exp(self, amount):
-        self.EXP += amount
-        print('{p} gets {e} EXP'.format(p=self.name, e=amount))
-        self.level_up()
-
-    def level_up(self):
-        while self.EXP > level_exp[self.level]:
-            self.EXP -= level_exp[self.level]
-            self.level += 1
-
-            self.__HP += 100
-            self.__STR += 2
-            self.__AGI += 1
-            self.__INT += 1
-            self.__STA += 2
-
-            self.update_attr()
-            print('\t\t\t\t\t\t\t\t\t\tHERO [{p}] LEVEL UP!'.format(p=self.name))
-        return
-
-    def add_item(self, item, n):
-        if item in self.bag:
-            self.bag[item] += n
-        else:
-            self.bag[item] = 1
-        print('{p} gets {i} x {n}'.format(p=self.name, n=n, i=item))
-
-    def remove_item(self, item, n):
-        if self.bag[item] > n + 1:
-            self.bag[item] -= n
-        elif self.bag[item] == n:
-            del self.bag[item]
-        else:
-            del self.bag[item]
-            print('Player-remove_item: negative number -> 0')
-        print('{p} drops {i} x {n}'.format(p=self.name, n=n, i=item))
-
-    def add_skills(self, skill_names):
-        for skill_name in skill_names:
-            self.SKB.append(skill_name)
-
-    def increase_level(self, n):
-        self.level += n
-        print('{p} level is increased by {n}'.format(p=self.name, n=n))
-
-
-
-    def report_status(self):
-        print('[{n}] has [{hp}] HP left'.format(n=self.name, hp=self.HP))
-
-    # def use_skill(self, skill_name, enemy):
-    #     # skill = DATA_SKILL[skill_name](self, projectile)
-    #     # skill.cast_on(enemy)
-    #
-    #     return DATA_SKILL[skill_name](self, enemy)
-
-
-class Boss(Hero):
-    def __init__(self, name, type_):
-        super(Boss, self).__init__(name, type_)
-        self.loot = {}
-        self.dice = 10
-
-        self.at_creation()
-
-    def at_creation(self):
-        self.add_skills(['punch', 'heal'])
-        self.add_item('N95', 1)
-        self.loot = {
-            'EXP': 10,
-            'money': 100,
-            'item_dict': self.bag
+        self.money = 0
+        self.equipment = {
+            'weapon': None,
+            'armour': None,
+            'jewelry': None
         }
 
-level_exp = {
-    1: 20,
-    2: 40,
-    3: 80,
-    4: 160
-}
+        self.inventory = {}
+        self.loot = self.inventory
 
-class Player(Hero):
-    def __init__(self, name, type_):
-        super(Player, self).__init__(name, type_)
-        # self.isBanned = False
+        self.reset_status()
 
-        self.dice = 20
-        self.money = 0
+        self.alive = True
 
-
-        self.at_creation()
-
-    def at_creation(self):
-        self.add_skills(['punch'])
+    def __repr__(self):
+        return self.name
 
     def change_name(self, new_name):
         self.name = new_name
 
-    def add_money(self, amount):
-        self.money += amount
-        print('{p} gets {m} money'.format(p=self.name, m=amount))
+    def reset_status(self):
+        # self.STR = self.__STR
+        # self.AGI = self.__AGI
+        # self.INT = self.__INT
+        self.STA = self.__STA
 
+        self.HP = self.__HP + self.STA * 1
 
+    def is_alive(self):
+        return True if self.alive else False
+
+    def increase_hp(self, amount):
+        self.HP += amount
+
+    def add_exp(self, amount):
+        self.EXP += amount
+        print('{p} gets {e} EXP'.format(p=self.name, e=amount))
+        # self.level_up()
+    #
+    # def level_up(self):
+    #     while self.EXP > level_exp[self.level]:
+    #         self.EXP -= level_exp[self.level]
+    #         self.level += 1
+    #
+    #         self.__HP += 1
+    #         self.__STR += 2
+    #         self.__AGI += 1
+    #         self.__INT += 1
+    #         self.__STA += 1
+    #
+    #         self.reset_status()
+    #         print('\t\t\t\t\t\t\t\t\t\tHERO [{p}] LEVEL UP!'.format(p=self.name))
+    #     return
+
+    def get_item(self, item, n):
+        if item in self.inventory:
+            self.inventory[item] += n
+        else:
+            self.inventory[item] = 1
+        print('{p} gets {i} x {n}'.format(p=self.name, n=n, i=item))
+
+    def drop_item(self, item, n):
+        if self.inventory[item] > n + 1:
+            self.inventory[item] -= n
+        elif self.inventory[item] == n:
+            del self.inventory[item]
+        else:
+            del self.inventory[item]
+            print('Player-remove_item: negative number -> 0')
+        print('{p} drops {i} x {n}'.format(p=self.name, n=n, i=item))
+
+    def add_skills(self, skill_names):
+        self.SKILLBOOK += skill_names
+
+    # def increase_level(self, n):
+    #     self.level += n
+    #     print('{p} level is increased by {n}'.format(p=self.name, n=n))
 
     def report_wealth(self):
         print('{p} has {e} EXP, {m} money'.format(
@@ -158,9 +109,96 @@ class Player(Hero):
         ))
 
         print('Bag:\n-----------')
-        if self.bag:
-            for item in self.bag.keys():
-                print('{i} x {n}'.format(i=item, n=self.bag[item]))
+        if self.inventory:
+            for item in self.inventory.keys():
+                print('{i} x {n}'.format(i=item, n=self.inventory[item]))
         else:
             print('Empty')
         print('-----------')
+
+    def add_money(self, amount):
+        self.money += amount
+        print('{p} gets {m} money'.format(p=self.name, m=amount))
+
+#
+# level_exp = {
+#     1: 20,
+#     2: 40,
+#     3: 80,
+#     4: 160
+# }
+
+
+def the_skill(skill_name):
+    """
+    Skill caller
+    :param skill_name: string
+    :return: the skill function
+    """
+    return getattr(newSkill, 'Skill_' + skill_name)
+
+
+class Fighter(Hero):
+    def __init__(self, name, type_='STR', is_npc=False):
+        super(Fighter, self).__init__(name, type_)
+        self.PHASE = ''
+        self.MP = 0
+        self.BATTLESKILLBOOK = {}
+
+        self.is_npc = is_npc
+        self.died_turn = 9999
+        self.killers = []
+        self.score = 0
+
+        self.last_move = None
+        self.incoming_projectiles = None
+        self.init_turn()
+
+        print('Fighter [{name}({type_})] initialized'.format(
+            name=self.name,
+            type_=self.type_), end=' ')
+        print(self.BATTLESKILLBOOK)
+
+    def init_skills(self):
+        self.BATTLESKILLBOOK = {'A': the_skill('attack')(self),
+                                'A2': the_skill('attack2')(self),
+                                'D': the_skill('defend')(self),
+                                'P': the_skill('prep')(self)}
+
+    def init_turn(self):
+        self.incoming_projectiles = {
+            'potion': {'heal': [], 'damage': [], 'fill': [], 'drain': []},
+            'arrow': {'heal': [], 'damage': [], 'fill': [], 'drain': []}
+        }
+        self.last_move = '...'
+
+    def get_available_skills(self):
+        available_skills = []
+        for skill_key in self.BATTLESKILLBOOK:
+            if self.BATTLESKILLBOOK[skill_key].is_available():
+                available_skills.append(skill_key)
+            else:
+                continue
+        return available_skills
+
+    def increase_mp(self, amount):
+        self.MP += amount
+
+    def set_phase(self, phase_type):
+        self.PHASE = phase_type
+
+    def go_die(self, turn):
+        self.alive = False
+        self.died_turn = turn
+        self.killers = [self.incoming_projectiles['arrow']['damage']]
+
+    def report_status(self):
+        print('[{n}]: {hp} HP {mp} MP {s}'
+              .format(n=self.name, hp=self.HP, mp=self.MP, s=str(self.BATTLESKILLBOOK.keys())))
+
+
+
+
+
+
+
