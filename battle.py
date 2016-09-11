@@ -1,6 +1,6 @@
 import random
 import time
-from character import *
+from Character import *
 
 
 def battle(fighters, max_turn=10):
@@ -100,8 +100,8 @@ def battle(fighters, max_turn=10):
                         for prj in prjs:
                             prj.billing()
             # All billed
-            # Check death
-            if fighter.HP <= 0:
+            # Check new death
+            if fighter.is_alive() and fighter.HP <= 0:
                 # fighter will die
 
                 # fighter did die

@@ -1,4 +1,4 @@
-import newSkill
+import Skill
 
 
 class Hero:
@@ -135,7 +135,7 @@ def the_skill(skill_name):
     :param skill_name: string
     :return: the skill function
     """
-    return getattr(newSkill, 'Skill_' + skill_name)
+    return getattr(Skill, 'Skill_' + skill_name)
 
 
 class Fighter(Hero):
@@ -190,7 +190,7 @@ class Fighter(Hero):
     def go_die(self, turn):
         self.alive = False
         self.died_turn = turn
-        self.killers = [self.incoming_projectiles['arrow']['damage']]
+        self.killers = self.incoming_projectiles['arrow']['damage']
 
     def report_status(self):
         print('[{n}]: {hp} HP {mp} MP {s}'
