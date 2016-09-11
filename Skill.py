@@ -87,6 +87,15 @@ class Skill_defend(Skill):
 class Skill_attack2(Skill_attack):
     def __init__(self, caster,
                  mp_cost=2, damage=2, alias='大力戳', key='A2'):
+        """
+        Inherit skill from Skill_attack
+
+        :param caster: Fighter
+        :param mp_cost: int mp cost for cast this skill
+        :param damage: int hp damage of the skill
+        :param alias: string skill name
+        :param key: string skill key for user input to select, and generate available_skills
+        """
         super(Skill_attack2, self)\
             .__init__(caster=caster, mp_cost=mp_cost, damage=damage, alias=alias, key=key)
 
