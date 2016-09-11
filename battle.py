@@ -1,6 +1,7 @@
 import random
 import time
 from Character import *
+from Item import create_item
 
 
 def battle(fighters, max_turn=10):
@@ -18,7 +19,7 @@ def battle(fighters, max_turn=10):
     # Begin battle_process
     # Init skills (for n)
     for fighter in fighters:
-        fighter.init_skills()
+        fighter.init_battle()
         fighter.report_status()
 
     # Turns begin
@@ -40,6 +41,9 @@ def battle(fighters, max_turn=10):
             fighter.init_turn()
             if fighter.is_alive():
                 fighters_this_turn.append(fighter)
+                # toimpr magical nb, in right place ?
+                # if turn != 1:
+                #     fighter.gain_score(1)
 
         # Choose skill
         for fighter in fighters_this_turn:
@@ -108,6 +112,10 @@ def battle(fighters, max_turn=10):
                 # go_die = set alive false, record turn, leave death message
                 fighter.go_die(turn)
                 fighters_remain -= 1
+                # killer gain score for killing
+                for prj in fighter.lethal_projectiles:
+                    # toImpr move magical nb to global setting
+                    prj.caster.killed_someone()
 
         # Output turn info
         # Moves
@@ -129,26 +137,26 @@ def battle(fighters, max_turn=10):
 
     # Exit battle_process
     # Battle result
-    score_board = sorted(fighters, key=lambda f: (f.died_turn, f.HP), reverse=True)
+    score_board = sorted(fighters, key=lambda f: (f.score, f.died_turn), reverse=True)
     for index, fighter in enumerate(score_board):
         if fighter.is_alive():
             status = '存活({hp}HP)'.format(hp=fighter.HP)
         else:
             killers = []
-            for pj in fighter.killers:
+            for pj in fighter.lethal_projectiles:
                 killer = '{owner}的{skill}'. \
-                    format(owner=pj.owner.name, skill=pj.skill.alias)
+                    format(owner=pj.caster.name, skill=pj.skill.alias)
                 killers.append(killer)
             killers_msg = '&'.join(killers)
 
             status = '卒(Turn{t}, {hp}HP, 被{killer}所杀)' \
                 .format(t=fighter.died_turn, hp=fighter.HP,
                         killer=killers_msg)
-        print('#{i} {f} -- {s}'.format(i=index, f=fighter.name, s=status))
+        print('#{i}\t{f}\t\t*{score}*\t\t{status}'.format(i=index+1, f=fighter.name, score=fighter.score, status=status))
 
         # distribute_loot(player, enemy, battle_result)
 
-
+# toAdd loot system
 # def distribute_loot(player, enemy, battle_result):
 #     """
 #     Distribute enemy loot to player according to battle result
@@ -179,13 +187,26 @@ def battle(fighters, max_turn=10):
 #         player.get_item(loot_item, loot_item_dict[loot_item])
 
 
+# toImpr separated gameplay
 if __name__ == "__main__":
+    glove1 = create_item('A2')
+    glove2 = create_item('A2')
+    # toAdd item database
+    # game_items = [glove1, glove2]
+
     zcx = Fighter('zcx')
-    i = Fighter('i', is_npc=True)
+    zcx.put_in_item(glove1)
+    zcx.equip_item(glove1)
+
+    iii = Fighter('i', is_npc=True)
+    iii.put_in_item(glove2)
+    iii.equip_item(glove2)
+
     j = Fighter('j', is_npc=True)
     k = Fighter('k', is_npc=True)
+    allFighters = [zcx, iii, j, k]
 
-    battle([zcx, i, j, k])
+    battle(allFighters)
 
     # player1.report_wealth()
     # print(player1.level)

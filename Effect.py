@@ -15,7 +15,7 @@ class Projectile:
         self.victim = victim
 
         self.tag = ''
-        self.owner = self.skill.caster
+        self.caster = self.skill.caster
         self.someone_may_die = False
 
         self.delta_hp = 0
@@ -66,6 +66,7 @@ class Arrow(Projectile):
 
 
 # Projectile to self
+# toImpr better name?
 class Potion(Projectile):
     def __init__(self, skill, **deltas):
         super(Potion, self).__init__(skill=skill, victim=skill.caster, **deltas)

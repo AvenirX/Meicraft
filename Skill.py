@@ -5,7 +5,7 @@ from Effect import *
 
 
 class Skill:
-    def __init__(self, caster, phase_type, mp_cost=0, n=-1, alias='', key=''):
+    def __init__(self, caster=None, phase_type='', mp_cost=0, n=-1, alias='', key=''):
         self.caster = caster
         self.mp_cost = mp_cost
         self.phase_type = phase_type
@@ -22,6 +22,15 @@ class Skill:
         self.caster.last_move = self
 
 
+def the_skill(skill_id):
+    """
+    Skill caller
+    :param skill_id: string currently skill_name
+    :return: the skill class
+    """
+    return globals()['Skill_' + skill_id]
+
+
 class Skill_prep(Skill):
     def __init__(self, caster, phase_type='P',
                  mp_cost=-1, alias="蓄", key='P'):
@@ -32,6 +41,7 @@ class Skill_prep(Skill):
     def cast(self, *args):
         self.record_move()
         self.caster.set_phase(self.phase_type)
+        # toImpr new function create_potion in Effect?
         potion = Potion(skill=self, delta_mp=self.mp_cost*(-1))
         potion.deliver()
 
@@ -84,6 +94,7 @@ class Skill_defend(Skill):
 
 
 # Customized skills
+# toadd new function skills
 class Skill_attack2(Skill_attack):
     def __init__(self, caster,
                  mp_cost=2, damage=2, alias='大力戳', key='A2'):
